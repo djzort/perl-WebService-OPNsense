@@ -1,0 +1,12 @@
+/.build/
+/Build
+/Build.PL
+/MYMETA.*
+/Makefile
+/Makefile.PL
+/META.json
+/META.yml
+/PLAN.md
+/blib/
+/pm_to_blib
+*.tar.gz

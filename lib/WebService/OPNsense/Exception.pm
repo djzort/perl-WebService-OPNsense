@@ -1,0 +1,70 @@
+#!/bin/false
+# ABSTRACT: Structured exception class for OPNsense API errors
+# PODNAME: WebService::OPNsense::Exception
+use strictures 2;
+
+package WebService::OPNsense::Exception;
+
+use Carp qw( croak );
+use Moo;
+use namespace::clean;
+
+use overload '""' => sub { shift->message }, fallback => 1;
+
+extends 'Carp::Datum' if $ENV{CARP_DATUM};
+
+has message     => ( is => 'ro', required => 1 );
+has http_status => ( is => 'ro' );
+has response    => ( is => 'ro' );
+
+sub throw {
+    my ( $class, %attrs ) = @_;
+    croak $class->new(%attrs);
+}
+
+1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+WebService::OPNsense::Exception - Structured exception class for OPNsense API errors
+
+=head1 SYNOPSIS
+
+    use WebService::OPNsense::Exception;
+
+    WebService::OPNsense::Exception->throw(
+        message     => 'Not Found',
+        http_status => 404,
+        response    => $res,
+    );
+
+=head1 DESCRIPTION
+
+Exception class used by L<WebService::OPNsense> to report API errors.
+Stringifies to the error message.
+
+=head1 ATTRIBUTES
+
+=over
+
+=item C<message> (required) -- Human-readable error description
+
+=item C<http_status> -- HTTP status code, if applicable
+
+=item C<response> -- Original L<WebService::Client::Response> object
+
+=back
+
+=head1 METHODS
+
+=head2 throw
+
+    WebService::OPNsense::Exception->throw(%attrs);
+
+Constructs and throws a new exception.
+
+=cut
