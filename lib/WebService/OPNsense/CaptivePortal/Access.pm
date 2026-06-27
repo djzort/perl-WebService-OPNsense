@@ -10,30 +10,34 @@ use namespace::clean;
 
 has client => ( is => 'ro', required => 1 );
 
+sub _api_path {
+    return '/api/captiveportal/access';
+}
+
+with 'WebService::OPNsense::Role::APIPath';
+
 sub api {
     my ($self) = @_;
-    return $self->client->get('/api/captiveportal/access/api');
+    my $uri = $self->_path('api');
+    return $self->client->get($uri);
 }
 
 sub status {
     my ( $self, $zoneid ) = @_;
-    my $path = '/api/captiveportal/access/status';
-    $path .= "/$zoneid" if defined $zoneid;
-    return $self->client->get($path);
+    my $uri = $self->_path( 'status{/zoneid}', zoneid => $zoneid );
+    return $self->client->get($uri);
 }
 
 sub logon {
     my ( $self, $zoneid ) = @_;
-    my $path = '/api/captiveportal/access/logon';
-    $path .= "/$zoneid" if defined $zoneid;
-    return $self->client->post($path);
+    my $uri = $self->_path( 'logon{/zoneid}', zoneid => $zoneid );
+    return $self->client->post($uri);
 }
 
 sub logoff {
     my ( $self, $zoneid ) = @_;
-    my $path = '/api/captiveportal/access/logoff';
-    $path .= "/$zoneid" if defined $zoneid;
-    return $self->client->post($path);
+    my $uri = $self->_path( 'logoff{/zoneid}', zoneid => $zoneid );
+    return $self->client->post($uri);
 }
 
 1;
@@ -41,10 +45,6 @@ sub logoff {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::CaptivePortal::Access - Captive portal access controller
 
 =head1 SYNOPSIS
 
@@ -85,6 +85,14 @@ Logs on a captive portal session.  Optionally specify a zone ID.
 
 Logs off a captive portal session.  Optionally specify a zone ID.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $cp_access->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
 
 =cut

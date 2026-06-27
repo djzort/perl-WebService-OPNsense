@@ -22,15 +22,11 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::IPsec::Settings - IPsec settings controller
-
 =head1 SYNOPSIS
 
     my $settings = $opn->ipsec_settings;
 
-    my $config = $settings->get;
+    my $config = $settings->get_settings;
     $settings->set_settings({ ipsec => { ... } });
 
 =head1 DESCRIPTION
@@ -39,11 +35,11 @@ Reads and writes IPsec settings
 
 =head1 METHODS
 
-=head2 get
+=head2 get_settings
 
-    my $config = $settings->get;
+    my $config = $settings->get_settings;
 
-Returns the current IPsec settings.
+Returns IPsec settings.
 
 =head2 set_settings
 
@@ -51,6 +47,14 @@ Returns the current IPsec settings.
 
 Updates the IPsec settings.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $settings->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Settings>
 
 =cut

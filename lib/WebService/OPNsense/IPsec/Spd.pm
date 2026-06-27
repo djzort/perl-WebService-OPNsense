@@ -5,10 +5,19 @@ use strictures 2;
 
 package WebService::OPNsense::IPsec::Spd;
 
+use Carp              qw( croak );
 use Moo;
-use namespace::clean;
+use namespace::clean;      # must be last
 
 has client => ( is => 'ro', required => 1 );
+
+sub _require_id {
+    my ( $self, $id ) = @_;
+    if ( !defined($id) || !length($id) ) {
+        croak 'SPD entry ID is required';
+    }
+    return $id;
+}
 
 sub search {
     my ( $self, %params ) = @_;
@@ -17,6 +26,7 @@ sub search {
 
 sub delete_entry {
     my ( $self, $id ) = @_;
+    $self->_require_id($id);
     return $self->client->post("/api/ipsec/spd/delete/$id");
 }
 
@@ -26,16 +36,12 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::IPsec::Spd - IPsec Security Policy Database (SPD) controller
-
 =head1 SYNOPSIS
 
     my $spd = $opn->ipsec_spd;
 
     my $entries = $spd->search;
-    $spd->delete($id);
+    $spd->delete_entry($id);
 
 =head1 DESCRIPTION
 
@@ -56,6 +62,14 @@ Searches for SPD entries.
 
 Deletes an SPD entry by ID.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $spd->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

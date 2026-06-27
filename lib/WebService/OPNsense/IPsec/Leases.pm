@@ -10,14 +10,22 @@ use namespace::clean;
 
 has client => ( is => 'ro', required => 1 );
 
+sub _api_path {
+    return '/api/ipsec/leases';
+}
+
+with 'WebService::OPNsense::Role::APIPath';
+
 sub pools {
     my ($self) = @_;
-    return $self->client->get('/api/ipsec/leases/pools');
+    my $uri = $self->_path('pools');
+    return $self->client->get($uri);
 }
 
 sub search {
     my ( $self, %params ) = @_;
-    return $self->client->get( '/api/ipsec/leases/search', \%params );
+    my $uri = $self->_path('search');
+    return $self->client->get( $uri, \%params );
 }
 
 1;
@@ -25,10 +33,6 @@ sub search {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::IPsec::Leases - IPsec lease controller
 
 =head1 SYNOPSIS
 
@@ -55,6 +59,14 @@ Returns the list of available IPsec pools for lease assignment.
 
 Searches for IPsec leases.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $leases->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
 
 =cut

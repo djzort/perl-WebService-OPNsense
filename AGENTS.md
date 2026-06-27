@@ -29,7 +29,7 @@ prove -lvr t/
 - `URI::Escape`
 - `URI::Template`
 - `Carp`
-- `Const::Fast` / `Const::Fast::Exporter`
+- `Const::Fast`
 - `Exporter::Shiny` / `Exporter::Tiny`
 - `JSON::MaybeXS`
 - `UUID::Tiny`
@@ -43,7 +43,7 @@ lib/
   WebService/
     OPNsense.pm             # Main class: consumes WebService::Client, 53 lazy accessors
     OPNsense/
-      Constants.pm          # Cross-cutting enums via Const::Fast::Exporter
+      Constants.pm          # General-purpose enums via Const::Fast + Exporter::Tiny
       Normalize.pm          # IP normalization + UUID validation via Exporter::Shiny
       Exception.pm          # Structured exception (throw/croak)
       Object.pm             # Hash-based result object with nested conversion
@@ -77,7 +77,7 @@ lib/
       Cron/
         Settings.pm, Service.pm
       Role/
-        APIPath.pm, Crud.pm, ItemCrud.pm, Service.pm, Settings.pm
+        APIPath.pm, Crud.pm, ItemCrud.pm, KeaItemCrud.pm, Service.pm, Settings.pm
       Firewall/
         Role/
           NAT.pm
@@ -175,18 +175,29 @@ dist.ini, weaver.ini, Changes, README.md, AGENTS.md
   to export functions/constants from Moo classes.  This pushes Exporter::Tiny
   onto C<@ISA> and is safe with bare C<use namespace::clean;> (the imported
   C<import> method is inherited via C<@ISA>, not a direct symbol-table entry).
-- **Cross-cutting constants**: Use C<use Const::Fast::Exporter qw( const );>
-  for constants shared across multiple controllers.  These auto-export and
-  don't interact with C<namespace::clean>.
+  For non-Moo packages (e.g. C<Constants.pm>), use
+  C<use parent qw( Exporter::Tiny );> directly with C<@EXPORT_OK>.
+- **General-purpose constants**: Use C<use Const::Fast qw( const );> for
+  readonly variable creation and C<use parent qw( Exporter::Tiny );> for the
+  export mechanism.  List all constants in C<@EXPORT_OK> (one per line,
+  vertical layout).  Export nothing by default; no C<%EXPORT_TAGS>.
 - **Method call extraction**: Store the result of a method call in a variable
   before passing it as an argument to another method (or before interpolation).
   Avoid inline/nested method calls like
-  `$self->client->get( $self->_mkuri(...) )`; instead write
-  `my $uri = $self->_mkuri(...); $self->client->get($uri)`.
-- **Multi-line argument lists**: When calling a method with multiple arguments,
-  place each argument on its own line for diff and C<git blame> friendliness:
+  `$self->client->get( $self->_path(...) )`; instead write
+  `my $uri = $self->_path(...); $self->client->get($uri)`.
+  This convention is applied across the full codebase (262 extractions in 30 files).
+- **Multi-line argument lists and data structures**: When calling a method with
+  multiple arguments, place each argument on its own line for diff and
+  C<git blame> friendliness:
   `my $result = $obj->method(` newline `param1 => 'value1',` newline
   `param2 => 'value2',` newline `);`.  Single-argument calls may stay on one line.
+  Apply the same vertical layout to hashrefs, arrayrefs, and other composite
+  data structures — every element on its own line.
+- **Prefer C<qw()> for list literals**: When a list contains simple bareword
+  strings (including C<$>‑prefixed constant names), use C<qw()> rather than
+  comma‑separated quoted strings.  C<qw()> is more compact, visually distinct,
+  and produces cleaner diffs when items are added or removed.
 - **Helper subs for repeating idioms**: Extract repeated code patterns into
   helper subroutines (typically at the bottom of the file, ordered
   alphabetically).  This applies to any three-or-more-line stanza that appears
@@ -194,8 +205,95 @@ dist.ini, weaver.ini, Changes, README.md, AGENTS.md
   Name helpers clearly, preferring verbs or verb-object phrases.  Never duplicate
   the same logic in multiple places, even if each instance is small.
 
+## Design Principles
+
+These principles drive the codebase and could apply to any Perl project:
+
+- **Explicit over implicit**: Every import, export, and dependency is spelled out.
+  No `:all` shortcuts, no default exports, no bare `//` regexes, no inline
+  method calls.  What you see is exactly what happens.
+- **Convention over configuration**: Consistent patterns for every decision —
+  alphabetical ordering, namespace::clean placement, variable naming, POD
+  structure, method signatures.  Once you know one module, you know them all.
+- **DRY through roles**: Extract shared logic into composable roles, not base
+  classes.  Single inheritance for behavior is a last resort.  262 `_path`
+  extractions, 20 Kea methods consolidated into one role, 5 service methods
+  shared across 6 consumers.
+- **Readability for diff and blame**: Each statement declares one thing.
+  Method calls are extracted to variables.  Multi-arg calls get one argument
+  per line.  Alignment aids scanning.  Code is written for the next person
+  reading a `git diff`.
+- **Zero policy violations**: `perlcritic` is run on every change.  No
+  exceptions, no annotations, no noise.  If a policy fires, fix the code or
+  adjust the config project-wide.
+- **Document everything for the user**: Every method has POD.  Full
+  descriptions are copied into every consumer (not just `L<...>` links).
+  No `=for Pod::Coverage` directives — they conceal undocumented methods.
+- **Test the contract, not the implementation**: Tests use `dies {}`,
+  `is()` for deep comparison, `ok( $obj->isa(...) )` — they verify behavior,
+  not internal structure.  No test tools that lock in implementation details.
+- **Organise tests in subtests**: Wrap related assertions in `subtest`
+  blocks.  Each subtest has a clear description, a focused scope, and
+  produces one top-level pass/fail.  This makes failures immediately
+  locatable and allows targeted re-execution.
+- **Extract helper subs to avoid test duplication**: When the same setup,
+  teardown, or assertion pattern appears in multiple subtests or files,
+  extract it into a helper subroutine.  This keeps tests readable and
+  consistent without sacrificing explicitness.
+- **Be explicit about what you match**: `[0-9]` not `\d`, `[a-z]` not `\w`,
+  `[ \t]` not `\s`.  Regex magic shortcuts hide intent.  Name the characters
+  you actually mean.
+- **Guard early, return clearly**: Validate inputs at the top of methods.
+  Return `undef` for 404s rather than throwing.  Use `is_plain_hashref`
+  without redundant guards.  Every path is intentional.
+
+## Design Decisions
+
+- **Role hierarchy**: `Role::APIPath` is the base role providing `_path($endpoint, %vars)`
+  via `URI::Template`. All other shared roles (`Crud`, `ItemCrud`, `KeaItemCrud`,
+  `Service`, `Settings`, `Firewall::Role::NAT`) consume it. Consumers compose via
+  `with` and never implement `_path` themselves.
+- **namespace::clean ordering**: Place `use namespace::clean` before `with` and
+  before `sub` declarations so user-defined subs survive the snapshot. Exception:
+  `WebService::OPNsense.pm` places `with 'WebService::Client'` first because
+  `WebService::Client` exports (`GET`, `POST`, `PUT`, `DELETE`) arrive after
+  `namespace::clean`'s scope-end cleanup.
+- **Constants export**: `Constants.pm` uses `Const::Fast` for readonly variable
+  creation and `parent qw( Exporter::Tiny )` for exports (not `Const::Fast::Exporter`,
+  not `Exporter::Shiny`). Exports only via `@EXPORT_OK` — nothing by default, no
+  `%EXPORT_TAGS`, no `:all` shortcut. Every consumer lists every constant explicitly.
+- **Constant naming**: `$OPN_ENABLED`/`$OPN_DISABLED` prefix avoids namespace
+  collisions in user code.
+- **Method call extraction**: Always `my $uri = $self->_path(...);` then
+  `$self->client->$method($uri)` — never inline. 262 extractions across 30 files.
+- **POD documentation**: Full method descriptions copied from roles into every
+  consumer (not `L<...>` links) for user convenience. No `=for Pod::Coverage`
+  directives anywhere — all methods are documented or are Moo lifecycle methods.
+- **`is_plain_hashref` guard**: Returns false for `undef`/`0`/`''`, so
+  `$params && is_plain_hashref($params)` is redundant. Use bare
+  `is_plain_hashref($params)`.
+- **HTTP 404 guard**: `defined $res or return;` in `OPNsense.pm` to safely
+  return `undef` when the API returns 404.
+- **Perlcritic config**: `allow = _api_path _path` in
+  `ProhibitUnusedPrivateSubroutines` replaces 36 `## no critic` annotations.
+- **Test conventions**: `dies { ... }` / `lives { ... }` with `ok()` wrapper
+  (not `dies_ok`/`lives_ok`); `is()` for deep comparison (not `is_deeply`);
+  `ok( $obj->isa('Class'), 'description' )` instead of `isa_ok`.
+- **Branch**: `trunk` (not `master`). Single squashed commit per feature phase.
+- **Tarball exclusion**: `AGENTS.md` excluded from CPAN tarball via
+  `[PruneFiles]` in `dist.ini`. `PLAN.md` is gitignored.
+- **Dist::Zilla dependency sections**: Runtime dependencies go in `[Prereqs]`,
+  test-only dependencies in `[Prereqs / TestRequires]`, and development-only
+  (author) dependencies in `[Prereqs / DevelopRequires]`. Every new module
+  import (`use` in production code or `use`/`require` in test files) must be
+  declared in the correct section of `dist.ini`.  Determine the section by
+  file path: files under `lib/` → `[Prereqs]`; files under `t/` →
+  `[Prereqs / TestRequires]`; generated or helper scripts under `bin/`,
+  `eg/`, `examples/`, `xt/`, `author/`, or `utils/` → `[Prereqs / DevelopRequires]`
+  (or omit if the dependency is already listed elsewhere).
+
 ## Status
 
-- **Tests**: 676 pass across 10 files
-- **Perl::Critic**: 0 violations in `lib/` with `--profile t/.perlcriticrc`
-- **`## no critic` annotations**: 0 in `lib/`, 1 in `t/` (intentional `no strict` in constants test)
+- **Tests**: 65 pass (10 files, subtests); 788 pass (`dzil test --release`, 25 files)
+- **Perl::Critic**: 0 violations in `lib/` and `t/` with `--profile t/.perlcriticrc`
+- **`## no critic` annotations**: 0 in `lib/`, 3 in `t/` (1 `ProhibitNoStrict` + 1 `ProtectPrivateSubs` block + 1 `RequireTrailingCommaAtNewline` block)

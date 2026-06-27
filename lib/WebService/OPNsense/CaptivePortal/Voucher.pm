@@ -5,46 +5,84 @@ use strictures 2;
 
 package WebService::OPNsense::CaptivePortal::Voucher;
 
+use Carp              qw( croak );
 use Moo;
-use namespace::clean;
+use namespace::clean;      # must be last
 
 has client => ( is => 'ro', required => 1 );
 
+sub _api_path {
+    return '/api/captiveportal/voucher';
+}
+
+with 'WebService::OPNsense::Role::APIPath';
+
+sub _require_param {
+    my ( $self, $param, $name ) = @_;
+    if ( !defined($param) || !length($param) ) {
+        croak "Voucher $name is required";
+    }
+    return $param;
+}
+
 sub list_providers {
     my ($self) = @_;
-    return $self->client->get('/api/captiveportal/voucher/listProviders');
+    my $uri = $self->_path('listProviders');
+    return $self->client->get($uri);
 }
 
 sub list_voucher_groups {
     my ( $self, $provider ) = @_;
-    return $self->client->get("/api/captiveportal/voucher/listVoucherGroups/$provider");
+    $self->_require_param( $provider, 'provider' );
+    my $uri = $self->_path( 'listVoucherGroups/{provider}', provider => $provider );
+    return $self->client->get($uri);
 }
 
 sub list_vouchers {
     my ( $self, $provider, $group ) = @_;
-    return $self->client->get("/api/captiveportal/voucher/listVouchers/$provider/$group");
+    $self->_require_param( $provider, 'provider' );
+    $self->_require_param( $group,    'group' );
+    my $uri = $self->_path(
+        'listVouchers/{provider}/{group}', provider => $provider,
+        group     => $group,
+    );
+    return $self->client->get($uri);
 }
 
 sub generate_vouchers {
     my ( $self, $provider ) = @_;
-    return $self->client->post("/api/captiveportal/voucher/generateVouchers/$provider");
+    $self->_require_param( $provider, 'provider' );
+    my $uri = $self->_path( 'generateVouchers/{provider}', provider => $provider );
+    return $self->client->post($uri);
 }
 
 sub expire_voucher {
     my ( $self, $provider ) = @_;
-    return $self->client->post("/api/captiveportal/voucher/expireVoucher/$provider");
+    $self->_require_param( $provider, 'provider' );
+    my $uri = $self->_path( 'expireVoucher/{provider}', provider => $provider );
+    return $self->client->post($uri);
 }
 
 sub drop_voucher_group {
     my ( $self, $provider, $group ) = @_;
-    return $self->client->post("/api/captiveportal/voucher/dropVoucherGroup/$provider/$group");
+    $self->_require_param( $provider, 'provider' );
+    $self->_require_param( $group,    'group' );
+    my $uri = $self->_path(
+        'dropVoucherGroup/{provider}/{group}', provider => $provider,
+        group     => $group,
+    );
+    return $self->client->post($uri);
 }
 
 sub drop_expired_vouchers {
     my ( $self, $provider, $group ) = @_;
-    return $self->client->post(
-        "/api/captiveportal/voucher/dropExpiredVouchers/$provider/$group",
+    $self->_require_param( $provider, 'provider' );
+    $self->_require_param( $group,    'group' );
+    my $uri = $self->_path(
+        'dropExpiredVouchers/{provider}/{group}', provider => $provider,
+        group     => $group,
     );
+    return $self->client->post($uri);
 }
 
 1;
@@ -52,10 +90,6 @@ sub drop_expired_vouchers {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::CaptivePortal::Voucher - Captive portal voucher controller
 
 =head1 SYNOPSIS
 
@@ -111,6 +145,14 @@ Drops a voucher group.
 
 Drops expired vouchers for a provider and group.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $cp_voucher->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
 
 =cut

@@ -10,19 +10,28 @@ use namespace::clean;
 
 has client => ( is => 'ro', required => 1 );
 
+sub _api_path {
+    return '/api/trafficshaper/service';
+}
+
+with 'WebService::OPNsense::Role::APIPath';
+
 sub reconfigure {
     my ($self) = @_;
-    return $self->client->post('/api/trafficshaper/service/reconfigure');
+    my $uri = $self->_path('reconfigure');
+    return $self->client->post($uri);
 }
 
 sub flush_reload {
     my ($self) = @_;
-    return $self->client->post('/api/trafficshaper/service/flushReload');
+    my $uri = $self->_path('flushReload');
+    return $self->client->post($uri);
 }
 
 sub statistics {
     my ($self) = @_;
-    return $self->client->get('/api/trafficshaper/service/statistics');
+    my $uri = $self->_path('statistics');
+    return $self->client->get($uri);
 }
 
 1;
@@ -30,10 +39,6 @@ sub statistics {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::TrafficShaper::Service - Traffic shaper service controller
 
 =head1 SYNOPSIS
 
@@ -65,6 +70,14 @@ Flushes and reloads the traffic shaper configuration.
 
 Returns traffic shaper statistics.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $ts_service->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
 
 =cut

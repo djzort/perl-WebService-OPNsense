@@ -22,10 +22,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Dnsmasq::Service - Dnsmasq service controller
-
 =head1 SYNOPSIS
 
     my $service = $opn->dnsmasq_service;
@@ -44,7 +40,7 @@ Controls the Dnsmasq service.
 
     my $status = $service->status;
 
-Returns the current service status.
+Returns service status.
 
 =head2 start
 
@@ -70,6 +66,14 @@ Restarts the Dnsmasq service.
 
 Reconfigures the Dnsmasq service.
 
-=for Pod::Coverage _api_path _path client status start stop restart reconfigure
+=head2 client
+
+    my $http_client = $service->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Service>
 
 =cut

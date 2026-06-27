@@ -24,48 +24,64 @@ sub status {
 
 sub search_route {
     my ( $self, %params ) = @_;
-    return $self->client->get( $self->_path('searchroute'), \%params );
+    my $uri = $self->_path('searchroute');
+
+    return $self->client->get( $uri, \%params );
 }
 
 sub get_route {
     my ( $self, $uuid ) = @_;
     validate_uuid($uuid);
-    return $self->client->get( $self->_path( 'getroute/{uuid}', uuid => $uuid ) );
+    my $uri = $self->_path( 'getroute/{uuid}', uuid => $uuid );
+
+    return $self->client->get($uri);
 }
 
 sub add_route {
     my ( $self, $route_data ) = @_;
-    return $self->client->post( $self->_path('addroute'), $route_data );
+    my $uri = $self->_path('addroute');
+
+    return $self->client->post( $uri, $route_data );
 }
 
 sub set_route {
     my ( $self, $uuid, $route_data ) = @_;
     validate_uuid($uuid);
-    return $self->client->post( $self->_path( 'setroute/{uuid}', uuid => $uuid ), $route_data );
+    my $uri = $self->_path( 'setroute/{uuid}', uuid => $uuid );
+
+    return $self->client->post( $uri, $route_data );
 }
 
 sub del_route {
     my ( $self, $uuid ) = @_;
     validate_uuid($uuid);
-    return $self->client->post( $self->_path( 'delroute/{uuid}', uuid => $uuid ) );
+    my $uri = $self->_path( 'delroute/{uuid}', uuid => $uuid );
+
+    return $self->client->post($uri);
 }
 
 sub toggle_route {
     my ( $self, $uuid, $disabled ) = @_;
     validate_uuid($uuid);
+    my $uri = $self->_path( 'toggleroute/{uuid}{/disabled}', uuid => $uuid, disabled => $disabled );
+
     return $self->client->post(
-        $self->_path( 'toggleroute/{uuid}{/disabled}', uuid => $uuid, disabled => $disabled ),
+        $uri,
     );
 }
 
 sub reconfigure {
     my ($self) = @_;
-    return $self->client->post( $self->_path('reconfigure') );
+    my $uri = $self->_path('reconfigure');
+
+    return $self->client->post($uri);
 }
 
 sub get {
     my ($self) = @_;
-    return $self->client->get( $self->_path('get') );
+    my $uri = $self->_path('get');
+
+    return $self->client->get($uri);
 }
 
 1;
@@ -74,11 +90,9 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Routes - Routes API controller
-
 =head1 SYNOPSIS
+
+    use WebService::OPNsense::Constants qw( $OPN_DISABLED );
 
     my $routes = $opn->routes;
 
@@ -89,7 +103,7 @@ WebService::OPNsense::Routes - Routes API controller
         route => {
             network  => '10.0.0.0/8',
             gateway  => '192.168.1.1',
-            disabled => 0,
+            disabled => $OPN_DISABLED,
         },
     });
 
@@ -121,14 +135,14 @@ Returns a single route by UUID.
 
     my $result = $routes->add_route($route_data);
 
-Creates a new static route.  C<$route_data> should be a hashref
+Creates static route.  C<$route_data> should be a hashref
 matching the OPNsense API format (e.g. C<< { route => { ... } } >>).
 
 =head2 set_route
 
     my $result = $routes->set_route($uuid, $route_data);
 
-Updates an existing route.
+Updates route.
 
 =head2 del_route
 
@@ -154,6 +168,27 @@ Applies pending route changes.
 
 Returns all route configuration.
 
-=for Pod::Coverage client
+=head1 CONSTANTS
+
+Gateway constants are available from
+L<WebService::OPNsense::Constants>:
+
+=over
+
+=item C<$GATEWAY_DEFAULT>
+
+=back
+
+Use them when setting the C<gateway> field in a route.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
+
+=head2 client
+
+    my $http_client = $routes->client;
+
+Returns the underlying HTTP client object used for API requests.
 
 =cut

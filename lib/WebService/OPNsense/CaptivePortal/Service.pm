@@ -19,27 +19,35 @@ with 'WebService::OPNsense::Role::Service';
 
 sub search_templates {
     my ( $self, %params ) = @_;
-    return $self->client->get( $self->_path('searchTemplate'), \%params );
+    my $uri = $self->_path('searchTemplate');
+
+    return $self->client->get( $uri, \%params );
 }
 
 sub get_template {
     my ( $self, $uuid ) = @_;
     validate_uuid($uuid);
-    return $self->client->get( $self->_path( 'getTemplate/{uuid}', uuid => $uuid ) );
+    my $uri = $self->_path( 'getTemplate/{uuid}', uuid => $uuid );
+
+    return $self->client->get($uri);
 }
 
 sub save_template {
     my ( $self, $uuid, $template_data ) = @_;
     validate_uuid($uuid);
+    my $uri = $self->_path( 'setTemplate/{uuid}', uuid => $uuid );
+
     return $self->client->post(
-        $self->_path( 'setTemplate/{uuid}', uuid => $uuid ), $template_data,
+        $uri, $template_data,
     );
 }
 
 sub del_template {
     my ( $self, $uuid ) = @_;
     validate_uuid($uuid);
-    return $self->client->post( $self->_path( 'delTemplate/{uuid}', uuid => $uuid ) );
+    my $uri = $self->_path( 'delTemplate/{uuid}', uuid => $uuid );
+
+    return $self->client->post($uri);
 }
 
 1;
@@ -47,10 +55,6 @@ sub del_template {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::CaptivePortal::Service - Captive portal service controller
 
 =head1 SYNOPSIS
 
@@ -69,7 +73,7 @@ templates.
 
     my $status = $cp_service->status;
 
-Returns the current service status.
+Returns service status.
 
 =head2 start
 
@@ -119,6 +123,14 @@ Updates a template.
 
 Deletes a template by UUID.
 
-=for Pod::Coverage _api_path _path client status start stop restart reconfigure
+=head2 client
+
+    my $http_client = $cp_service->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Service>
 
 =cut

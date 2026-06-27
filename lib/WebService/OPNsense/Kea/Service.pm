@@ -22,10 +22,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Kea::Service - Kea service controller
-
 =head1 SYNOPSIS
 
     my $service = $opn->kea_service;
@@ -64,7 +60,7 @@ Starts the Kea service.
 
     my $status = $service->status;
 
-Returns the current status of the Kea service.
+Returns status of the Kea service.
 
 =head2 stop
 
@@ -72,6 +68,14 @@ Returns the current status of the Kea service.
 
 Stops the Kea service.
 
-=for Pod::Coverage _api_path _path client status start stop restart reconfigure
+=head2 client
+
+    my $http_client = $service->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Service>
 
 =cut

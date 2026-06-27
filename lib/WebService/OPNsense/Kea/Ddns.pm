@@ -22,17 +22,13 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Kea::Ddns - Kea DDNS controller
-
 =head1 SYNOPSIS
 
     my $ddns = $opn->kea_ddns;
 
     my $config = $ddns->get;
 
-    $ddns->set({ ... });
+    $ddns->set_settings({ ... });
 
 =head1 DESCRIPTION
 
@@ -40,9 +36,9 @@ Manages Kea DDNS configuration.
 
 =head1 METHODS
 
-=head2 get
+=head2 get_settings
 
-    my $config = $ddns->get;
+    my $config = $ddns->get_settings;
 
 Returns the full Kea DDNS configuration.
 
@@ -52,6 +48,14 @@ Returns the full Kea DDNS configuration.
 
 Updates the Kea DDNS configuration.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $ddns->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Settings>
 
 =cut

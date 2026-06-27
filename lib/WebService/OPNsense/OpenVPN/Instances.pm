@@ -20,42 +20,56 @@ with 'WebService::OPNsense::Role::Crud';
 sub set_instance {
     my ( $self, $uuid, $instance_data ) = @_;
     validate_uuid($uuid);
-    return $self->client->post( $self->_path( 'set/{uuid}', uuid => $uuid ), $instance_data );
+    my $uri = $self->_path( 'set/{uuid}', uuid => $uuid );
+
+    return $self->client->post( $uri, $instance_data );
 }
 
 sub gen_key {
     my ( $self, $type ) = @_;
+    my $uri = $self->_path( 'genKey{/type}', type => $type );
+
     return $self->client->get(
-        $self->_path( 'genKey{/type}', type => $type ),
+        $uri,
     );
 }
 
 sub search_static_key {
     my ( $self, %params ) = @_;
-    return $self->client->get( $self->_path('searchStaticKey'), \%params );
+    my $uri = $self->_path('searchStaticKey');
+
+    return $self->client->get( $uri, \%params );
 }
 
 sub get_static_key {
     my ( $self, $uuid ) = @_;
     validate_uuid($uuid);
-    return $self->client->get( $self->_path( 'getStaticKey/{uuid}', uuid => $uuid ) );
+    my $uri = $self->_path( 'getStaticKey/{uuid}', uuid => $uuid );
+
+    return $self->client->get($uri);
 }
 
 sub add_static_key {
     my ( $self, $key_data ) = @_;
-    return $self->client->post( $self->_path('addStaticKey'), $key_data );
+    my $uri = $self->_path('addStaticKey');
+
+    return $self->client->post( $uri, $key_data );
 }
 
 sub set_static_key {
     my ( $self, $uuid, $key_data ) = @_;
     validate_uuid($uuid);
-    return $self->client->post( $self->_path( 'setStaticKey/{uuid}', uuid => $uuid ), $key_data );
+    my $uri = $self->_path( 'setStaticKey/{uuid}', uuid => $uuid );
+
+    return $self->client->post( $uri, $key_data );
 }
 
 sub del_static_key {
     my ( $self, $uuid ) = @_;
     validate_uuid($uuid);
-    return $self->client->post( $self->_path( 'delStaticKey/{uuid}', uuid => $uuid ) );
+    my $uri = $self->_path( 'delStaticKey/{uuid}', uuid => $uuid );
+
+    return $self->client->post($uri);
 }
 
 1;
@@ -64,11 +78,9 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::OpenVPN::Instances - OpenVPN instances controller
-
 =head1 SYNOPSIS
+
+    use WebService::OPNsense::Constants qw( $PROTO_UDP $OPN_ENABLED $OPN_DISABLED );
 
     my $instances = $opn->openvpn_instances;
 
@@ -78,14 +90,14 @@ WebService::OPNsense::OpenVPN::Instances - OpenVPN instances controller
     # Create an instance
     $instances->add({
         server => {
-            enabled  => 1,
+            enabled  => $OPN_ENABLED,
             port     => 1194,
-            protocol => 'UDP',
+            protocol => $PROTO_UDP,
         },
     });
 
     # Toggle an instance
-    $instances->toggle($uuid, 0);
+    $instances->toggle($uuid, $OPN_DISABLED);
 
     # Generate a key
     my $key = $instances->gen_key('tls-crypt');
@@ -100,7 +112,7 @@ OpenVPN server and client instances.
 
     my $result = $instances->set_instance($uuid, $instance_data);
 
-Updates an existing instance.
+Updates instance.
 
 =head2 gen_key
 
@@ -125,13 +137,13 @@ Returns a single static key by UUID.
 
     my $result = $instances->add_static_key($key_data);
 
-Creates a new static key.
+Creates static key.
 
 =head2 set_static_key
 
     my $result = $instances->set_static_key($uuid, $key_data);
 
-Updates an existing static key.
+Updates static key.
 
 =head2 del_static_key
 
@@ -139,6 +151,63 @@ Updates an existing static key.
 
 Deletes a static key by UUID.
 
-=for Pod::Coverage _api_path _path client search get add del toggle
+=head1 CONSTANTS
+
+Protocol constants are available from
+L<WebService::OPNsense::Constants>:
+
+=over
+
+=item C<$PROTO_UDP>
+
+=item C<$PROTO_TCP>
+
+=back
+
+Use them when setting the C<protocol> field in an instance.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Crud>
+
+=head1 PROVIDED METHODS
+
+The following methods are inherited from consumed roles.
+
+=head2 search
+
+    my $results = $ctrl->search( %params );
+
+Searches for OpenVPN instances.
+
+=head2 get
+
+    my $instance = $ctrl->get( $uuid );
+
+Returns a single instance by UUID.  Throws if C<$uuid> is not a valid UUID.
+
+=head2 add
+
+    my $result = $ctrl->add( $instance_data );
+
+Creates an instance.
+
+=head2 del
+
+    my $result = $ctrl->del( $uuid );
+
+Deletes an instance by UUID.  Throws if C<$uuid> is not a valid UUID.
+
+=head2 toggle
+
+    my $result = $ctrl->toggle( $uuid, $enabled );
+
+Enables or disables an instance.  Throws if C<$uuid> is not a valid UUID.
+
+=head2 client
+
+    my $http_client = $ctrl->client;
+
+Returns the underlying HTTP client object used for API requests.
 
 =cut

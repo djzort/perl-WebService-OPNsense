@@ -10,18 +10,6 @@ use namespace::clean;
 
 has client => ( is => 'ro', required => 1 );
 
-has 'filter' => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => sub {
-        my ($self) = @_;
-        require WebService::OPNsense::Firewall::Filter;
-        return WebService::OPNsense::Firewall::Filter->new(
-            client => $self->client,
-        );
-    },
-);
-
 has 'alias' => (
     is      => 'ro',
     lazy    => 1,
@@ -58,6 +46,30 @@ has 'd_nat' => (
     },
 );
 
+has 'filter' => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => sub {
+        my ($self) = @_;
+        require WebService::OPNsense::Firewall::Filter;
+        return WebService::OPNsense::Firewall::Filter->new(
+            client => $self->client,
+        );
+    },
+);
+
+has 'npt' => (
+    is      => 'ro',
+    lazy    => 1,
+    builder => sub {
+        my ($self) = @_;
+        require WebService::OPNsense::Firewall::Npt;
+        return WebService::OPNsense::Firewall::Npt->new(
+            client => $self->client,
+        );
+    },
+);
+
 has 'one_to_one' => (
     is      => 'ro',
     lazy    => 1,
@@ -82,27 +94,11 @@ has 'source_nat' => (
     },
 );
 
-has 'npt' => (
-    is      => 'ro',
-    lazy    => 1,
-    builder => sub {
-        my ($self) = @_;
-        require WebService::OPNsense::Firewall::Npt;
-        return WebService::OPNsense::Firewall::Npt->new(
-            client => $self->client,
-        );
-    },
-);
-
 1;
 
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::Firewall - Firewall API controller
 
 =head1 SYNOPSIS
 
@@ -115,34 +111,22 @@ Provides access to firewall-related API controllers.
 
 =head1 ATTRIBUTES
 
-=head2 C<filter>
+    alias         WebService::OPNsense::Firewall::Alias
+    category      WebService::OPNsense::Firewall::Category
+    d_nat         WebService::OPNsense::Firewall::DNat
+    filter        WebService::OPNsense::Firewall::Filter
+    npt           WebService::OPNsense::Firewall::Npt
+    one_to_one    WebService::OPNsense::Firewall::OneToOne
+    source_nat    WebService::OPNsense::Firewall::SourceNat
 
-Lazy accessor returning a L<WebService::OPNsense::Firewall::Filter> instance.
+=head2 client
 
-=head2 C<alias>
+    my $http_client = $fw->client;
 
-Lazy accessor returning a L<WebService::OPNsense::Firewall::Alias> instance.
+Returns the underlying HTTP client object used for API requests.
 
-=head2 C<category>
+=head1 SEE ALSO
 
-Lazy accessor returning a L<WebService::OPNsense::Firewall::Category> instance.
-
-=head2 C<d_nat>
-
-Lazy accessor returning a L<WebService::OPNsense::Firewall::DNat> instance.
-
-=head2 C<one_to_one>
-
-Lazy accessor returning a L<WebService::OPNsense::Firewall::OneToOne> instance.
-
-=head2 C<source_nat>
-
-Lazy accessor returning a L<WebService::OPNsense::Firewall::SourceNat> instance.
-
-=head2 C<npt>
-
-Lazy accessor returning a L<WebService::OPNsense::Firewall::Npt> instance.
-
-=for Pod::Coverage client
+L<WebService::OPNsense>
 
 =cut

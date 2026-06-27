@@ -22,10 +22,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::IPsec::Service - IPsec service controller
-
 =head1 SYNOPSIS
 
     my $svc = $opn->ipsec_service;
@@ -43,7 +39,7 @@ Controls the IPsec service.
 
     my $status = $svc->status;
 
-Returns the current IPsec service status.
+Returns IPsec service status.
 
 =head2 start
 
@@ -69,6 +65,14 @@ Restarts the IPsec service.
 
 Reconfigures the IPsec service.
 
-=for Pod::Coverage _api_path _path client status start stop restart reconfigure
+=head2 client
+
+    my $http_client = $svc->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Service>
 
 =cut

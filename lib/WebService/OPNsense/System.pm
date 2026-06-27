@@ -66,10 +66,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::System - System API controller
-
 =head1 SYNOPSIS
 
     my $sys = $opn->system;
@@ -144,6 +140,14 @@ Halts (shuts down) the system immediately.
 
 Returns the navigation menu structure.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $sys->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

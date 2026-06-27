@@ -6,7 +6,6 @@ use strictures 2;
 package WebService::OPNsense::IPsec::ManualSpd;
 
 use Moo;
-use WebService::OPNsense::Normalize qw( validate_uuid );
 use namespace::clean;
 
 has client => ( is => 'ro', required => 1 );
@@ -17,21 +16,11 @@ sub _api_path {
 
 with 'WebService::OPNsense::Role::Crud';
 
-sub set_manual_spd {
-    my ( $self, $uuid, $spd_data ) = @_;
-    validate_uuid($uuid);
-    return $self->client->post( $self->_path( 'set/{uuid}', uuid => $uuid ), $spd_data );
-}
-
 1;
 
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::IPsec::ManualSpd - IPsec manual SPD controller
 
 =head1 SYNOPSIS
 
@@ -44,14 +33,54 @@ WebService::OPNsense::IPsec::ManualSpd - IPsec manual SPD controller
 
 Manages manual IPsec Security Policy Database entries.
 
-=head1 METHODS
+=head1 PROVIDED METHODS
 
-=head2 set_manual_spd
+The following methods are inherited from consumed roles.
 
-    my $result = $mspd->set_manual_spd($uuid, $spd_data);
+=head2 search
 
-Updates an existing manual SPD entry.
+    my $results = $ctrl->search( %params );
 
-=for Pod::Coverage _api_path _path client search get add del toggle
+Searches for manual SPD entries.
+
+=head2 get
+
+    my $spd = $ctrl->get( $uuid );
+
+Returns a single manual SPD entry by UUID.  Throws if C<$uuid> is not a valid UUID.
+
+=head2 set
+
+    my $result = $ctrl->set( $uuid, $spd_data );
+
+Updates manual SPD entry by UUID.  Throws if C<$uuid> is not a valid UUID.
+
+=head2 add
+
+    my $result = $ctrl->add( $spd_data );
+
+Creates manual SPD entry.
+
+=head2 del
+
+    my $result = $ctrl->del( $uuid );
+
+Deletes a manual SPD entry by UUID.  Throws if C<$uuid> is not a valid UUID.
+
+=head2 toggle
+
+    my $result = $ctrl->toggle( $uuid, $enabled );
+
+Enables or disables a manual SPD entry.  Throws if C<$uuid> is not a valid UUID.
+
+=head2 client
+
+    my $http_client = $ctrl->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::Crud>
 
 =cut

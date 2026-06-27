@@ -28,10 +28,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Exception - Structured exception class for OPNsense API errors
-
 =head1 SYNOPSIS
 
     use WebService::OPNsense::Exception;
@@ -45,19 +41,25 @@ WebService::OPNsense::Exception - Structured exception class for OPNsense API er
 =head1 DESCRIPTION
 
 Exception class used by L<WebService::OPNsense> to report API errors.
-Stringifies to the error message.
+Stringifies to the error message via C<use overload '""'>.
+
+When the environment variable C<CARP_DATUM> is set, this class extends
+L<Carp::Datum> to enable structured exception handling and additional
+context in stack traces.
 
 =head1 ATTRIBUTES
 
-=over
+=head2 C<message> (required)
 
-=item C<message> (required) -- Human-readable error description
+Human-readable error description.
 
-=item C<http_status> -- HTTP status code, if applicable
+=head2 C<http_status>
 
-=item C<response> -- Original L<WebService::Client::Response> object
+HTTP status code, if applicable.
 
-=back
+=head2 C<response>
+
+Original L<WebService::Client::Response> object.
 
 =head1 METHODS
 
@@ -66,5 +68,9 @@ Stringifies to the error message.
     WebService::OPNsense::Exception->throw(%attrs);
 
 Constructs and throws a new exception.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

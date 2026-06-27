@@ -52,10 +52,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Normalize - Normalization and validation utilities
-
 =head1 SYNOPSIS
 
     use WebService::OPNsense::Normalize qw( normalize_ip optional_segment validate_uuid );
@@ -84,15 +80,9 @@ Accepts a blessed IP object and returns the canonical CIDR string.
 
 Supported classes:
 
-=over
-
-=item L<Net::CIDR::Lite> -- via C<< ->list >> (croaks if more than one range)
-
-=item L<Net::Netmask> -- via C<< ->desc >>
-
-=item L<NetAddr::IP> -- via C<< ->cidr >>
-
-=back
+    Net::CIDR::Lite   ->list    Croaks if more than one range
+    Net::Netmask      ->desc
+    NetAddr::IP       ->cidr
 
 =head2 validate_uuid
 
@@ -111,5 +101,9 @@ Used to build API paths with optional trailing segments.
     my $path = "/api/endpoint/toggle/$uuid" . optional_segment($enabled);
     # $path eq "/api/endpoint/toggle/$uuid" if $enabled is undef
     # $path eq "/api/endpoint/toggle/$uuid/1" if $enabled is 1
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

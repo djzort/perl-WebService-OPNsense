@@ -10,39 +10,52 @@ use namespace::clean;
 
 has client => ( is => 'ro', required => 1 );
 
+sub _api_path {
+    return '/api/unbound/diagnostics';
+}
+
+with 'WebService::OPNsense::Role::APIPath';
+
 sub stats {
     my ($self) = @_;
-    return $self->client->get('/api/unbound/diagnostics/stats');
+    my $uri = $self->_path('stats');
+    return $self->client->get($uri);
 }
 
 sub list_local_zones {
     my ($self) = @_;
-    return $self->client->get('/api/unbound/diagnostics/listLocalZones');
+    my $uri = $self->_path('listLocalZones');
+    return $self->client->get($uri);
 }
 
 sub list_local_data {
     my ($self) = @_;
-    return $self->client->get('/api/unbound/diagnostics/listLocalData');
+    my $uri = $self->_path('listLocalData');
+    return $self->client->get($uri);
 }
 
 sub list_insecure {
     my ($self) = @_;
-    return $self->client->get('/api/unbound/diagnostics/listInsecure');
+    my $uri = $self->_path('listInsecure');
+    return $self->client->get($uri);
 }
 
 sub dump_cache {
     my ($self) = @_;
-    return $self->client->get('/api/unbound/diagnostics/dumpCache');
+    my $uri = $self->_path('dumpCache');
+    return $self->client->get($uri);
 }
 
 sub dump_infra {
     my ($self) = @_;
-    return $self->client->get('/api/unbound/diagnostics/dumpInfra');
+    my $uri = $self->_path('dumpInfra');
+    return $self->client->get($uri);
 }
 
 sub test_blocklist {
     my ( $self, $blocklist_data ) = @_;
-    return $self->client->post( '/api/unbound/diagnostics/testBlocklist', $blocklist_data );
+    my $uri = $self->_path('testBlocklist');
+    return $self->client->post( $uri, $blocklist_data );
 }
 
 1;
@@ -50,10 +63,6 @@ sub test_blocklist {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::Unbound::Diagnostics - Unbound diagnostics controller
 
 =head1 SYNOPSIS
 
@@ -109,6 +118,14 @@ Dumps infrastructure data.
 
 Tests a domain against the blocklist.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $unbound_diag->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
 
 =cut

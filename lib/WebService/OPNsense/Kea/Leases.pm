@@ -6,14 +6,18 @@ use strictures 2;
 package WebService::OPNsense::Kea::Leases;
 
 use Moo;
-use namespace::clean;
+use URI::Escape      qw( uri_escape_utf8 );
+use namespace::clean;      # must be last
 
 has client => ( is => 'ro', required => 1 );
 
 sub del_lease {
     my ( $self, $ips ) = @_;
     my $path = '/api/kea/leases/delLease';
-    $path .= "/$ips" if defined $ips;
+    if ( defined $ips ) {
+        my $encoded = uri_escape_utf8($ips);
+        $path .= "/$encoded";
+    }
     return $self->client->post($path);
 }
 
@@ -27,10 +31,6 @@ sub search {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::Kea::Leases - Kea leases controller
 
 =head1 SYNOPSIS
 
@@ -61,6 +61,14 @@ comma-separated list of IPs.
 
 Searches for DHCP leases.  Returns the raw API response hashref.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $leases->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

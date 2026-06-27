@@ -18,12 +18,16 @@ with 'WebService::OPNsense::Role::APIPath';
 
 sub search_phase1 {
     my ( $self, %params ) = @_;
-    return $self->client->get( $self->_path('searchPhase1'), \%params );
+    my $uri = $self->_path('searchPhase1');
+
+    return $self->client->get( $uri, \%params );
 }
 
 sub search_phase2 {
     my ( $self, %params ) = @_;
-    return $self->client->get( $self->_path('searchPhase2'), \%params );
+    my $uri = $self->_path('searchPhase2');
+
+    return $self->client->get( $uri, \%params );
 }
 
 sub toggle {
@@ -34,22 +38,30 @@ sub toggle {
 
 sub toggle_phase1 {
     my ( $self, $ikeid ) = @_;
-    return $self->client->post( $self->_path( 'togglePhase1/{ikeid}', ikeid => $ikeid ) );
+    my $uri = $self->_path( 'togglePhase1/{ikeid}', ikeid => $ikeid );
+
+    return $self->client->post($uri);
 }
 
 sub toggle_phase2 {
     my ( $self, $seqid ) = @_;
-    return $self->client->post( $self->_path( 'togglePhase2/{seqid}', seqid => $seqid ) );
+    my $uri = $self->_path( 'togglePhase2/{seqid}', seqid => $seqid );
+
+    return $self->client->post($uri);
 }
 
 sub del_phase1 {
     my ( $self, $ikeid ) = @_;
-    return $self->client->post( $self->_path( 'delPhase1/{ikeid}', ikeid => $ikeid ) );
+    my $uri = $self->_path( 'delPhase1/{ikeid}', ikeid => $ikeid );
+
+    return $self->client->post($uri);
 }
 
 sub del_phase2 {
     my ( $self, $seqid ) = @_;
-    return $self->client->post( $self->_path( 'delPhase2/{seqid}', seqid => $seqid ) );
+    my $uri = $self->_path( 'delPhase2/{seqid}', seqid => $seqid );
+
+    return $self->client->post($uri);
 }
 
 1;
@@ -57,10 +69,6 @@ sub del_phase2 {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::IPsec::Tunnel - IPsec tunnel status controller
 
 =head1 SYNOPSIS
 
@@ -118,6 +126,14 @@ Deletes a phase 1 tunnel by IKE ID.
 
 Deletes a phase 2 tunnel by sequence ID.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $tunnel->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
 
 =cut

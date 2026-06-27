@@ -68,10 +68,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::HASync - High availability sync controller
-
 =head1 SYNOPSIS
 
     my $ha = $opn->hasync;
@@ -88,7 +84,7 @@ High availability synchronization.
 
     my $settings = $ha->get;
 
-Returns the current HA sync settings.
+Returns HA sync settings.
 
 =head2 set_settings
 
@@ -144,6 +140,14 @@ Restarts HA sync.
 
 Restarts all HA sync services.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $ha->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

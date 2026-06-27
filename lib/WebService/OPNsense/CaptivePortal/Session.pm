@@ -10,31 +10,40 @@ use namespace::clean;
 
 has client => ( is => 'ro', required => 1 );
 
+sub _api_path {
+    return '/api/captiveportal/session';
+}
+
+with 'WebService::OPNsense::Role::APIPath';
+
 sub zones {
     my ($self) = @_;
-    return $self->client->get('/api/captiveportal/session/zones');
+    my $uri = $self->_path('zones');
+    return $self->client->get($uri);
 }
 
 sub search {
     my ( $self, %params ) = @_;
-    return $self->client->get( '/api/captiveportal/session/search', \%params );
+    my $uri = $self->_path('search');
+    return $self->client->get( $uri, \%params );
 }
 
 sub list {
     my ( $self, $zoneid ) = @_;
-    my $path = '/api/captiveportal/session/list';
-    $path .= "/$zoneid" if defined $zoneid;
-    return $self->client->get($path);
+    my $uri = $self->_path( 'list{/zoneid}', zoneid => $zoneid );
+    return $self->client->get($uri);
 }
 
 sub create_session {
     my ( $self, $session_data ) = @_;
-    return $self->client->post( '/api/captiveportal/session/connect', $session_data );
+    my $uri = $self->_path('connect');
+    return $self->client->post( $uri, $session_data );
 }
 
 sub disconnect_session {
     my ( $self, $session_data ) = @_;
-    return $self->client->post( '/api/captiveportal/session/disconnect', $session_data );
+    my $uri = $self->_path('disconnect');
+    return $self->client->post( $uri, $session_data );
 }
 
 1;
@@ -42,10 +51,6 @@ sub disconnect_session {
 __END__
 
 =pod
-
-=head1 NAME
-
-WebService::OPNsense::CaptivePortal::Session - Captive portal session controller
 
 =head1 SYNOPSIS
 
@@ -82,7 +87,7 @@ Lists active sessions.  Optionally filtered by zone ID.
 
     my $result = $cp_session->create_session($session_data);
 
-Creates a new captive portal session.
+Creates captive portal session.
 
 =head2 disconnect_session
 
@@ -90,6 +95,14 @@ Creates a new captive portal session.
 
 Disconnects an active session.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $cp_session->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense::Role::APIPath>
 
 =cut

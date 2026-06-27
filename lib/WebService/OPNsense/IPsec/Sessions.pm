@@ -5,10 +5,19 @@ use strictures 2;
 
 package WebService::OPNsense::IPsec::Sessions;
 
+use Carp              qw( croak );
 use Moo;
-use namespace::clean;
+use namespace::clean;      # must be last
 
 has client => ( is => 'ro', required => 1 );
+
+sub _require_id {
+    my ( $self, $id ) = @_;
+    if ( !defined($id) || !length($id) ) {
+        croak 'Session ID is required';
+    }
+    return $id;
+}
 
 sub search_phase1 {
     my ( $self, %params ) = @_;
@@ -22,12 +31,16 @@ sub search_phase2 {
 
 sub connect_session {
     my ( $self, $id ) = @_;
-    return $self->client->post("/api/ipsec/sessions/connect/$id");
+    my $uri = "/api/ipsec/sessions/connect/$id";
+    $self->_require_id($id);
+    return $self->client->post($uri);
 }
 
 sub disconnect {
     my ( $self, $id ) = @_;
-    return $self->client->post("/api/ipsec/sessions/disconnect/$id");
+    my $uri = "/api/ipsec/sessions/disconnect/$id";
+    $self->_require_id($id);
+    return $self->client->post($uri);
 }
 
 1;
@@ -36,16 +49,12 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::IPsec::Sessions - IPsec session controller
-
 =head1 SYNOPSIS
 
     my $sessions = $opn->ipsec_sessions;
 
     my $phase1 = $sessions->search_phase1;
-    $sessions->connect($id);
+    $sessions->connect_session($id);
 
 =head1 DESCRIPTION
 
@@ -77,6 +86,14 @@ Connects an IPsec session by ID.
 
 Disconnects an IPsec session by ID.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $sessions->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

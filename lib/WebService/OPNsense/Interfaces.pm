@@ -53,16 +53,14 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Interfaces - Interfaces API controller
-
 =head1 SYNOPSIS
+
+    use WebService::OPNsense::Constants qw( $INTERFACE_LAN );
 
     my $if = $opn->interfaces;
 
     my $info = $if->overview;
-    my $eth0 = $if->get_interface('lan');
+    my $eth0 = $if->get_interface($INTERFACE_LAN);
 
 =head1 DESCRIPTION
 
@@ -113,6 +111,37 @@ Updates interface settings.
 
 Applies pending interface settings changes.
 
-=for Pod::Coverage client
+=head1 CONSTANTS
+
+Interface name constants are available from
+L<WebService::OPNsense::Constants>:
+
+=over
+
+=item C<$INTERFACE_LAN>
+
+=item C<$INTERFACE_WAN>
+
+=item C<$INTERFACE_DMZ>
+
+=item C<$INTERFACE_GUEST>
+
+=item C<$INTERFACE_LOOPBACK>
+
+=item C<$INTERFACE_OPT1> through C<$INTERFACE_OPT9>
+
+=back
+
+Use them when calling C<get_interface> or C<reload_interface>.
+
+=head2 client
+
+    my $http_client = $interfaces->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut

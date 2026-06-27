@@ -160,10 +160,6 @@ __END__
 
 =pod
 
-=head1 NAME
-
-WebService::OPNsense::Diagnostics - Diagnostics API controller
-
 =head1 SYNOPSIS
 
     my $diag = $opn->diagnostics;
@@ -333,7 +329,7 @@ Returns disk usage information.
 
     my $time = $diag->system_time;
 
-Returns the current system time.
+Returns system time.
 
 =head2 portprobe
 
@@ -348,6 +344,14 @@ C<host> and C<port> fields.
 
 Returns current traffic statistics per interface.
 
-=for Pod::Coverage client
+=head2 client
+
+    my $http_client = $diag->client;
+
+Returns the underlying HTTP client object used for API requests.
+
+=head1 SEE ALSO
+
+L<WebService::OPNsense>
 
 =cut
