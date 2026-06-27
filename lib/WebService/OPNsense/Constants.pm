@@ -1,5 +1,5 @@
 #!/bin/false
-# ABSTRACT: Named constants for the OPNsense REST API -- safer and more maintainable than hardcoded strings
+# ABSTRACT: Named constants for the OPNsense REST API
 # PODNAME: WebService::OPNsense::Constants
 use strictures 2;
 
