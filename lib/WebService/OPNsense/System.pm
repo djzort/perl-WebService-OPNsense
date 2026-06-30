@@ -25,6 +25,11 @@ sub firmware_status {
     return $self->client->get('/api/core/firmware/status');
 }
 
+sub firmware_upgrade {
+    my ($self) = @_;
+    return $self->client->post('/api/core/firmware/upgrade');
+}
+
 sub hostname {
     my ($self) = @_;
     return $self->client->get('/api/core/system/hostname');
@@ -71,7 +76,8 @@ __END__
     my $sys = $opn->system;
 
     my $status = $sys->status;
-    my $info   = $sys->firmware_info;
+    my $info    = $sys->firmware_info;
+    my $upgrade = $sys->firmware_upgrade;
     my $version = $sys->version;
 
 =head1 DESCRIPTION
@@ -97,6 +103,12 @@ Returns firmware version and update information.
     my $status = $sys->firmware_status;
 
 Returns current firmware status (e.g. if updates are available).
+
+=head2 firmware_upgrade
+
+    my $result = $sys->firmware_upgrade;
+
+Starts a firmware upgrade process.  Returns the upgrade job result.
 
 =head2 hostname
 
