@@ -35,7 +35,7 @@ __END__
     $src_nat->add_rule({
         rule => {
             description => 'NAT traffic from internal network',
-            source_net  => '192.168.1.0/24',
+            source_net  => '192.0.2.0/24',
             protocol    => $PROTO_ANY,
             snat_mode   => $SNAT_AUTOMATIC,
             enabled     => $OPN_ENABLED,

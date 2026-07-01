@@ -194,6 +194,9 @@ dist.ini, weaver.ini, Changes, README.md, AGENTS.md
   `param2 => 'value2',` newline `);`.  Single-argument calls may stay on one line.
   Apply the same vertical layout to hashrefs, arrayrefs, and other composite
   data structures — every element on its own line.
+- **POD examples**: Use the documentation IP address ranges from RFC 5737
+  (C<192.0.2.0/24>, C<198.51.100.0/24>, C<203.0.113.0/24>) in all POD
+  examples. Never use real or private IP addresses in documentation.
 - **Prefer C<qw()> for list literals**: When a list contains simple bareword
   strings (including C<$>‑prefixed constant names), use C<qw()> rather than
   comma‑separated quoted strings.  C<qw()> is more compact, visually distinct,

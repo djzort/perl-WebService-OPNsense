@@ -38,7 +38,7 @@ __END__
             type        => $ONETOONE_NAT,
             protocol    => $PROTO_ANY,
             external    => '203.0.113.10',
-            internal    => '192.168.1.10',
+            internal    => '192.0.2.10',
             enabled     => $OPN_ENABLED,
         },
     });

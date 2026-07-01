@@ -101,8 +101,8 @@ __END__
 
     $routes->add_route({
         route => {
-            network  => '10.0.0.0/8',
-            gateway  => '192.168.1.1',
+            network  => '198.51.100.0/24',
+            gateway  => '192.0.2.1',
             disabled => $OPN_DISABLED,
         },
     });

@@ -168,7 +168,7 @@ __END__
 
     my $diag = $opn->diagnostics;
 
-    my $result = $diag->ping('192.168.1.1');
+    my $result = $diag->ping('192.0.2.1');
     my $states = $diag->pf_states;
     my $info   = $diag->system_information;
 
