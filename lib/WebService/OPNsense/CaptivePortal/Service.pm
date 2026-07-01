@@ -17,17 +17,18 @@ sub _api_path {
 
 with 'WebService::OPNsense::Role::Service';
 
-sub search_templates {
-    my ( $self, %params ) = @_;
-    my $uri = $self->_path('searchTemplate');
+sub del_template {
+    my ( $self, $uuid ) = @_;
+    validate_uuid($uuid);
+    my $uri = $self->_path( 'del_template/{uuid}', uuid => $uuid );
 
-    return $self->client->get( $uri, \%params );
+    return $self->client->post($uri);
 }
 
 sub get_template {
     my ( $self, $uuid ) = @_;
     validate_uuid($uuid);
-    my $uri = $self->_path( 'getTemplate/{uuid}', uuid => $uuid );
+    my $uri = $self->_path( 'get_template/{uuid}', uuid => $uuid );
 
     return $self->client->get($uri);
 }
@@ -35,19 +36,18 @@ sub get_template {
 sub save_template {
     my ( $self, $uuid, $template_data ) = @_;
     validate_uuid($uuid);
-    my $uri = $self->_path( 'setTemplate/{uuid}', uuid => $uuid );
+    my $uri = $self->_path( 'save_template/{uuid}', uuid => $uuid );
 
     return $self->client->post(
         $uri, $template_data,
     );
 }
 
-sub del_template {
-    my ( $self, $uuid ) = @_;
-    validate_uuid($uuid);
-    my $uri = $self->_path( 'delTemplate/{uuid}', uuid => $uuid );
+sub search_templates {
+    my ( $self, %params ) = @_;
+    my $uri = $self->_path('search_templates');
 
-    return $self->client->post($uri);
+    return $self->client->get( $uri, \%params );
 }
 
 1;
@@ -99,11 +99,11 @@ Restarts the captive portal service.
 
 Reconfigures the captive portal service.
 
-=head2 search_templates
+=head2 del_template
 
-    my $templates = $cp_service->search_templates(%params);
+    my $result = $cp_service->del_template($uuid);
 
-Searches for captive portal templates.
+Deletes a template by UUID.
 
 =head2 get_template
 
@@ -117,11 +117,11 @@ Returns a single template by UUID.
 
 Updates a template.
 
-=head2 del_template
+=head2 search_templates
 
-    my $result = $cp_service->del_template($uuid);
+    my $templates = $cp_service->search_templates(%params);
 
-Deletes a template by UUID.
+Searches for captive portal templates.
 
 =head2 client
 

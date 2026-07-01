@@ -16,15 +16,15 @@ sub _api_path {
 
 with 'WebService::OPNsense::Role::APIPath';
 
-sub reconfigure {
+sub flush_reload {
     my ($self) = @_;
-    my $uri = $self->_path('reconfigure');
+    my $uri = $self->_path('flushreload');
     return $self->client->post($uri);
 }
 
-sub flush_reload {
+sub reconfigure {
     my ($self) = @_;
-    my $uri = $self->_path('flushReload');
+    my $uri = $self->_path('reconfigure');
     return $self->client->post($uri);
 }
 
@@ -52,11 +52,11 @@ Controls the traffic shaper service
 
 =head1 METHODS
 
-=head2 reconfigure
+=head2 client
 
-    my $result = $ts_service->reconfigure;
+    my $http_client = $ts_service->client;
 
-Reconfigures the traffic shaper.
+Returns the underlying HTTP client object used for API requests.
 
 =head2 flush_reload
 
@@ -64,17 +64,17 @@ Reconfigures the traffic shaper.
 
 Flushes and reloads the traffic shaper configuration.
 
+=head2 reconfigure
+
+    my $result = $ts_service->reconfigure;
+
+Reconfigures the traffic shaper.
+
 =head2 statistics
 
     my $stats = $ts_service->statistics;
 
 Returns traffic shaper statistics.
-
-=head2 client
-
-    my $http_client = $ts_service->client;
-
-Returns the underlying HTTP client object used for API requests.
 
 =head1 SEE ALSO
 

@@ -17,37 +17,9 @@ sub _api_path {
 
 with 'WebService::OPNsense::Role::APIPath';
 
-sub status {
-    my ($self) = @_;
-    return $self->client->get('/api/routes/status/status');
-}
-
-sub search_route {
-    my ( $self, %params ) = @_;
-    my $uri = $self->_path('searchroute');
-
-    return $self->client->get( $uri, \%params );
-}
-
-sub get_route {
-    my ( $self, $uuid ) = @_;
-    validate_uuid($uuid);
-    my $uri = $self->_path( 'getroute/{uuid}', uuid => $uuid );
-
-    return $self->client->get($uri);
-}
-
 sub add_route {
     my ( $self, $route_data ) = @_;
     my $uri = $self->_path('addroute');
-
-    return $self->client->post( $uri, $route_data );
-}
-
-sub set_route {
-    my ( $self, $uuid, $route_data ) = @_;
-    validate_uuid($uuid);
-    my $uri = $self->_path( 'setroute/{uuid}', uuid => $uuid );
 
     return $self->client->post( $uri, $route_data );
 }
@@ -60,14 +32,19 @@ sub del_route {
     return $self->client->post($uri);
 }
 
-sub toggle_route {
-    my ( $self, $uuid, $disabled ) = @_;
-    validate_uuid($uuid);
-    my $uri = $self->_path( 'toggleroute/{uuid}{/disabled}', uuid => $uuid, disabled => $disabled );
+sub get {
+    my ($self) = @_;
+    my $uri = $self->_path('get');
 
-    return $self->client->post(
-        $uri,
-    );
+    return $self->client->get($uri);
+}
+
+sub get_route {
+    my ( $self, $uuid ) = @_;
+    validate_uuid($uuid);
+    my $uri = $self->_path( 'getroute/{uuid}', uuid => $uuid );
+
+    return $self->client->get($uri);
 }
 
 sub reconfigure {
@@ -77,11 +54,34 @@ sub reconfigure {
     return $self->client->post($uri);
 }
 
-sub get {
-    my ($self) = @_;
-    my $uri = $self->_path('get');
+sub search_route {
+    my ( $self, %params ) = @_;
+    my $uri = $self->_path('searchroute');
 
-    return $self->client->get($uri);
+    return $self->client->get( $uri, \%params );
+}
+
+sub set_route {
+    my ( $self, $uuid, $route_data ) = @_;
+    validate_uuid($uuid);
+    my $uri = $self->_path( 'setroute/{uuid}', uuid => $uuid );
+
+    return $self->client->post( $uri, $route_data );
+}
+
+sub status {
+    my ($self) = @_;
+    return $self->client->get('/api/routes/gateway/status');
+}
+
+sub toggle_route {
+    my ( $self, $uuid, $disabled ) = @_;
+    validate_uuid($uuid);
+    my $uri = $self->_path( 'toggleroute/{uuid}{/disabled}', uuid => $uuid, disabled => $disabled );
+
+    return $self->client->post(
+        $uri,
+    );
 }
 
 1;
@@ -113,24 +113,6 @@ Manages static routes.
 
 =head1 METHODS
 
-=head2 status
-
-    my $status = $routes->status;
-
-Returns gateway status information.
-
-=head2 search_route
-
-    my $results = $routes->search_route(%params);
-
-Searches for routes.  Parameters: C<current>, C<rowCount>, C<searchPhrase>.
-
-=head2 get_route
-
-    my $route = $routes->get_route($uuid);
-
-Returns a single route by UUID.
-
 =head2 add_route
 
     my $result = $routes->add_route($route_data);
@@ -138,23 +120,23 @@ Returns a single route by UUID.
 Creates static route.  C<$route_data> should be a hashref
 matching the OPNsense API format (e.g. C<< { route => { ... } } >>).
 
-=head2 set_route
-
-    my $result = $routes->set_route($uuid, $route_data);
-
-Updates route.
-
 =head2 del_route
 
     my $result = $routes->del_route($uuid);
 
 Deletes a route by UUID.
 
-=head2 toggle_route
+=head2 get
 
-    my $result = $routes->toggle_route($uuid, $disabled);
+    my $routes = $routes->get;
 
-Enables or disables a route.
+Returns all route configuration.
+
+=head2 get_route
+
+    my $route = $routes->get_route($uuid);
+
+Returns a single route by UUID.
 
 =head2 reconfigure
 
@@ -162,11 +144,29 @@ Enables or disables a route.
 
 Applies pending route changes.
 
-=head2 get
+=head2 search_route
 
-    my $routes = $routes->get;
+    my $results = $routes->search_route(%params);
 
-Returns all route configuration.
+Searches for routes.  Parameters: C<current>, C<rowCount>, C<searchPhrase>.
+
+=head2 set_route
+
+    my $result = $routes->set_route($uuid, $route_data);
+
+Updates route.
+
+=head2 status
+
+    my $status = $routes->status;
+
+Returns gateway status information.
+
+=head2 toggle_route
+
+    my $result = $routes->toggle_route($uuid, $disabled);
+
+Enables or disables a route.
 
 =head1 CONSTANTS
 
